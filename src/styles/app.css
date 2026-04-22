@@ -1,0 +1,587 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&family=JetBrains+Mono:wght@500;700&display=swap");
+
+:root {
+  --void: #09090b;
+  --elevated: #18181b;
+  --signal: #ff4500;
+  --ghost: #71717a;
+  --text: #fafafa;
+  --border: #2a2a30;
+  --danger: #f97316;
+  --panel-radius: 16px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  background: radial-gradient(circle at top, #111116, var(--void) 62%);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+}
+
+button,
+input,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+.app-root {
+  min-height: 100dvh;
+  padding: 1rem;
+  display: grid;
+  place-items: center;
+}
+
+.app-shell {
+  width: min(100%, 760px);
+  border: 1px solid var(--border);
+  background: color-mix(in oklab, var(--void), #fff 1.5%);
+  border-radius: 24px;
+  padding: 1rem;
+  box-shadow: 0 20px 60px rgb(0 0 0 / 0.4);
+  overflow: hidden;
+}
+
+.screen {
+  display: grid;
+  gap: 1rem;
+}
+
+.screen-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+h1,
+h2,
+h3 {
+  margin: 0;
+  font-family: "JetBrains Mono", monospace;
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+}
+
+.copy {
+  color: color-mix(in oklab, var(--text), #000 30%);
+}
+
+.eyebrow,
+.ghost {
+  color: var(--ghost);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.status-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.action {
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 0.85rem 1rem;
+  cursor: pointer;
+  transition: transform 140ms ease, border-color 140ms ease, filter 140ms ease;
+}
+
+.action:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.08);
+}
+
+.action:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.action-primary {
+  background: var(--signal);
+  border-color: color-mix(in oklab, var(--signal), #000 20%);
+  color: #0e0b08;
+  font-weight: 700;
+}
+
+.action-secondary {
+  background: var(--elevated);
+  color: var(--text);
+}
+
+.text-button {
+  border: 0;
+  background: transparent;
+  color: var(--ghost);
+  cursor: pointer;
+  padding: 0.25rem;
+}
+
+.text-button:hover {
+  color: var(--text);
+}
+
+.back-button {
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--elevated), #fff 2%);
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+}
+
+.dev-vault-button {
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  background: color-mix(in oklab, var(--elevated), #fff 2%);
+  color: var(--ghost);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.28rem 0.62rem;
+}
+
+.app-dev-controls {
+  position: fixed;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: grid;
+  gap: 0.35rem;
+  justify-items: end;
+  z-index: 7;
+  opacity: 0.58;
+  transition: opacity 140ms ease;
+}
+
+.app-dev-controls:hover,
+.app-dev-controls:focus-within {
+  opacity: 1;
+}
+
+.dev-vault-button:hover {
+  color: var(--text);
+  border-color: var(--signal);
+}
+
+.dev-vault-button-danger {
+  border-color: color-mix(in oklab, var(--danger), #000 30%);
+  color: color-mix(in oklab, var(--danger), #fff 8%);
+}
+
+.dev-vault-button-danger:hover {
+  color: #fff;
+  border-color: var(--danger);
+}
+
+.dashboard-actions,
+.crucible-actions,
+.focus-actions {
+  display: grid;
+  gap: 0.75rem;
+}
+
+.input {
+  width: 100%;
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 0.7rem 0.8rem;
+  min-height: 44px;
+}
+
+.detail-quick-actions {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.55rem;
+}
+
+.detail-action {
+  border: 1px dashed var(--border);
+  border-radius: 10px;
+  background: var(--elevated);
+  padding: 0.55rem 0.7rem;
+  text-align: center;
+}
+
+.title-input {
+  min-height: 76px;
+  resize: none;
+  overflow: hidden;
+}
+
+.warning {
+  color: var(--danger);
+  font-size: 0.85rem;
+}
+
+.constraint-group {
+  display: grid;
+  gap: 0.55rem;
+}
+
+.constraint-group label {
+  color: var(--ghost);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.pill-grid,
+.segments {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.pill,
+.segment {
+  border: 1px solid var(--border);
+  background: var(--elevated);
+  border-radius: 999px;
+  padding: 0.52rem 0.75rem;
+  cursor: pointer;
+}
+
+.pill-active,
+.segment-active {
+  border-color: var(--signal);
+  color: #fff;
+  box-shadow: inset 0 0 0 1px color-mix(in oklab, var(--signal), #000 30%);
+}
+
+.details-panel,
+.fallback,
+.result-card {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.65rem;
+}
+
+.vault-list {
+  display: grid;
+  gap: 0.75rem;
+  max-height: 60dvh;
+  overflow: auto;
+  padding-right: 0.2rem;
+}
+
+.vault-item {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  padding: 0.9rem;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.fallback-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.wheel-shell {
+  width: min(86vw, 300px);
+  aspect-ratio: 1;
+  place-self: center;
+  position: relative;
+  margin: 0.4rem 0;
+}
+
+.wheel {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  position: relative;
+  transition: transform 3.8s cubic-bezier(0.11, 0.88, 0.22, 1);
+  overflow: hidden;
+}
+
+.wheel-pointer {
+  position: absolute;
+  z-index: 3;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-top: 20px solid var(--signal);
+}
+
+.wheel-label {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 45%;
+  transform-origin: left center;
+  font-size: 0.65rem;
+  color: color-mix(in oklab, var(--text), #000 20%);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fight-stage {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.fight-final-choice {
+  margin-top: -0.35rem;
+}
+
+.fight-card-shell {
+  position: relative;
+}
+
+.fight-card {
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: var(--panel-radius);
+  padding: 1rem;
+  text-align: left;
+  display: grid;
+  gap: 0.6rem;
+  cursor: pointer;
+  width: 100%;
+}
+
+.fight-card-shell:hover .fight-card,
+.fight-card-shell:focus-within .fight-card {
+  border-color: #fff;
+  box-shadow: 0 0 0 1px rgb(255 255 255 / 0.32);
+}
+
+.fight-card strong {
+  font-family: "JetBrains Mono", monospace;
+  font-size: 1rem;
+}
+
+.fight-card p {
+  color: color-mix(in oklab, var(--text), #000 36%);
+}
+
+.fight-losing {
+  animation: shatter 340ms ease-out forwards;
+}
+
+.singularity {
+  text-align: center;
+}
+
+.peripheral {
+  opacity: 0;
+  pointer-events: none;
+  user-select: none;
+}
+
+.focus-card {
+  padding: 1rem;
+  border: 1px solid color-mix(in oklab, var(--signal), #000 45%);
+  background: color-mix(in oklab, var(--elevated), #fff 2%);
+  border-radius: 18px;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.focus-card h2 {
+  font-size: clamp(1.4rem, 5vw, 2.2rem);
+}
+
+.neglect-nudge {
+  border: 1px solid color-mix(in oklab, var(--signal), #000 20%);
+  border-radius: 12px;
+  color: var(--signal);
+  background: color-mix(in oklab, var(--signal), #000 88%);
+  padding: 0.7rem;
+  font-size: 0.84rem;
+}
+
+.airlock-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgb(9 9 11 / 0.85);
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+}
+
+.airlock-card {
+  width: min(92vw, 420px);
+  background: var(--elevated);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 1rem;
+  display: grid;
+  gap: 0.8rem;
+}
+
+.airlock-meter {
+  width: 100%;
+  height: 10px;
+  border-radius: 999px;
+  background: #222229;
+  overflow: hidden;
+}
+
+.airlock-meter-fill {
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, var(--signal), #ff8255);
+}
+
+.dissolve {
+  animation: dissolvePulse 420ms linear infinite;
+}
+
+.deposit-scene {
+  min-height: 110px;
+  display: grid;
+  place-items: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.deposit-task-card {
+  position: absolute;
+  top: 8px;
+  width: 270px;
+  border: 1px solid color-mix(in oklab, var(--signal), #000 35%);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.11), transparent 56%),
+    color-mix(in oklab, var(--elevated), #fff 5%);
+  border-radius: 10px;
+  padding: 0.65rem 0.75rem;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 0.84rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  transform-origin: center center;
+  transform: none;
+  z-index: 30;
+}
+
+.deposit-task-card-animate {
+  animation: fadeCardToBlack 620ms ease-out forwards;
+}
+
+.system-banner {
+  position: fixed;
+  top: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 1px solid var(--border);
+  background: #111116;
+  color: var(--text);
+  border-radius: 999px;
+  padding: 0.55rem 0.95rem;
+  font-size: 0.84rem;
+  z-index: 8;
+}
+
+.white-flush {
+  position: fixed;
+  inset: 0;
+  background: #fff;
+  animation: flash 700ms ease forwards;
+  pointer-events: none;
+  z-index: 9;
+}
+
+@keyframes flash {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes shatter {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.88) translateY(10px) rotate(-2deg);
+    filter: blur(4px);
+  }
+}
+
+@keyframes dissolvePulse {
+  0% {
+    filter: saturate(0.94) brightness(0.92);
+  }
+  50% {
+    filter: saturate(1.1) brightness(1.08);
+  }
+  100% {
+    filter: saturate(0.94) brightness(0.92);
+  }
+}
+
+@keyframes fadeCardToBlack {
+  0% {
+    transform: none;
+    border-color: color-mix(in oklab, var(--signal), #000 35%);
+    background:
+      linear-gradient(180deg, rgb(255 255 255 / 0.11), transparent 56%),
+      color-mix(in oklab, var(--elevated), #fff 5%);
+    color: var(--text);
+    opacity: 1;
+    filter: blur(0);
+  }
+  100% {
+    transform: none;
+    border-color: #000;
+    background: #000;
+    color: #000;
+    opacity: 0;
+    filter: blur(1.5px);
+  }
+}
+
+@media (min-width: 768px) {
+  .app-shell {
+    padding: 1.4rem;
+  }
+
+  .dashboard-actions,
+  .crucible-actions,
+  .focus-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .fight-stage {
+    grid-template-columns: 1fr 1fr;
+  }
+}
