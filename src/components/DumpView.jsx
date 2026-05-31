@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { CONTEXT_OPTIONS, ENERGY_OPTIONS, TIME_OPTIONS } from "../lib/constants";
+import { playTaskAdditionCompleteSound } from "../lib/uiSounds";
 
 const EMPTY_FORM = {
   title: "",
@@ -9,23 +10,35 @@ const EMPTY_FORM = {
   contexts: ["PC"]
 };
 
-function ConstraintPill({ selected, label, onClick }) {
+function ConstraintPill({ selected, label, onClick, disabled }) {
   return (
     <button
       type="button"
       className={`pill ${selected ? "pill-active" : ""}`}
       onClick={onClick}
+      disabled={disabled}
     >
       {label}
     </button>
   );
 }
 
-export default function DumpView({ onSend, onBack, calculateSimilarity }) {
+export default function DumpView({
+  onSend,
+  onUndo,
+  onBack,
+  calculateSimilarity,
+  airlockState,
+  airlockProgress,
+  completeVisualDurationMs
+}) {
   const [form, setForm] = useState(EMPTY_FORM);
   const [showDescription, setShowDescription] = useState(false);
   const titleRef = useRef(null);
 
+  const isAirlockPending = airlockState === "pending";
+  const isAirlockFading = airlockState === "fading";
+  const isAirlockComplete = airlockState === "complete";
   const titleLength = form.title.length;
   const canSubmit =
     form.title.trim().length > 0 &&
@@ -55,7 +68,17 @@ export default function DumpView({ onSend, onBack, calculateSimilarity }) {
     titleRef.current.style.height = `${titleRef.current.scrollHeight}px`;
   }, [form.title]);
 
-  function submit() {
+  useEffect(() => {
+    if (airlockState === "complete") {
+      playTaskAdditionCompleteSound(completeVisualDurationMs);
+    }
+  }, [airlockState, completeVisualDurationMs]);
+
+  function handlePrimaryAction() {
+    if (isAirlockPending) {
+      onUndo();
+      return;
+    }
     if (!canSubmit) {
       return;
     }
@@ -171,8 +194,19 @@ export default function DumpView({ onSend, onBack, calculateSimilarity }) {
         </div>
       </div>
 
-      <button className="action action-primary" disabled={!canSubmit} onClick={submit}>
-        Create Task
+      <button
+        className={`action action-airlock ${
+          isAirlockPending ? "action-airlock-pending" : ""
+        } ${isAirlockComplete || isAirlockFading ? "action-airlock-complete" : ""} ${
+          isAirlockFading ? "action-airlock-fading" : ""
+        }`}
+        style={{ "--airlock-progress": `${Math.min(100, Math.max(0, airlockProgress || 0))}%` }}
+        disabled={isAirlockComplete || isAirlockFading || (!isAirlockPending && !canSubmit)}
+        onClick={handlePrimaryAction}
+      >
+        <span>
+          {isAirlockPending ? "Undo?" : isAirlockComplete || isAirlockFading ? "Complete" : "Create Task"}
+        </span>
       </button>
     </section>
   );

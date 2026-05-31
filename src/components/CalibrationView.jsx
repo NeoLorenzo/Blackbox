@@ -1,4 +1,5 @@
-﻿import { CONTEXT_OPTIONS, ENERGY_OPTIONS, TIME_OPTIONS } from "../lib/constants";
+import { CONTEXT_OPTIONS, ENERGY_OPTIONS, TIME_OPTIONS } from "../lib/constants";
+import { playUiLeftClickSound } from "../lib/uiSounds";
 
 function SegmentButton({ selected, label, onClick }) {
   return (
@@ -99,11 +100,13 @@ export default function CalibrationView({
           !constraints.contexts.length ||
           vaultSize === 0
         }
-        onClick={onRun}
+        onClick={() => {
+          playUiLeftClickSound();
+          onRun();
+        }}
       >
         Next
       </button>
     </section>
   );
 }
-

@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import AirlockOverlay from "./components/AirlockOverlay";
 import CalibrationView from "./components/CalibrationView";
 import CrucibleChoice from "./components/CrucibleChoice";
 import Dashboard from "./components/Dashboard";
@@ -7,12 +6,22 @@ import DumpView from "./components/DumpView";
 import FateWheel from "./components/FateWheel";
 import FightBracket from "./components/FightBracket";
 import FocusView from "./components/FocusView";
+import CustomCursor from "./components/CustomCursor";
 import VaultView from "./components/VaultView";
 import { VIEW } from "./lib/constants";
 import { loadVault, removeTask, saveVault, upsertTask } from "./lib/storage";
 import { buildTask, filterTasks, similarityScore } from "./lib/tasks";
+import {
+  initUiSounds,
+  playBackArrowSound,
+  startUndoRiserSound,
+  stopUndoRiserSound
+} from "./lib/uiSounds";
 
-const AIRLOCK_DURATION_MS = 5000;
+const AIRLOCK_DURATION_MS = 3000;
+const AIRLOCK_COMPLETE_GLOW_MS = 820;
+const AIRLOCK_COMPLETE_FADE_MS = 320;
+const AIRLOCK_COMPLETE_VISUAL_MS = AIRLOCK_COMPLETE_GLOW_MS + AIRLOCK_COMPLETE_FADE_MS;
 
 export default function App() {
   const [vault, setVault] = useState(() => loadVault());
@@ -26,16 +35,22 @@ export default function App() {
   const [focusTask, setFocusTask] = useState(null);
   const [fallbackState, setFallbackState] = useState(false);
   const [statusText, setStatusText] = useState("");
-  const [airlockTask, setAirlockTask] = useState(null);
+  const [airlockState, setAirlockState] = useState("idle");
   const [airlockProgress, setAirlockProgress] = useState(0);
   const [whiteFlush, setWhiteFlush] = useState(false);
 
   const airlockCommitTimeoutRef = useRef(null);
   const airlockTickerRef = useRef(null);
+  const airlockCompleteTimeoutRef = useRef(null);
+  const airlockFadeTimeoutRef = useRef(null);
 
   useEffect(() => {
     saveVault(vault);
   }, [vault]);
+
+  useEffect(() => {
+    initUiSounds();
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -52,14 +67,27 @@ export default function App() {
       window.clearInterval(airlockTickerRef.current);
       airlockTickerRef.current = null;
     }
+    if (airlockCompleteTimeoutRef.current) {
+      window.clearTimeout(airlockCompleteTimeoutRef.current);
+      airlockCompleteTimeoutRef.current = null;
+    }
+    if (airlockFadeTimeoutRef.current) {
+      window.clearTimeout(airlockFadeTimeoutRef.current);
+      airlockFadeTimeoutRef.current = null;
+    }
+    stopUndoRiserSound();
   }
 
   function beginAirlock(input) {
+    if (airlockState !== "idle") {
+      return;
+    }
     clearAirlockTimers();
     const task = buildTask(input);
     const startAt = Date.now();
-    setAirlockTask(task);
+    setAirlockState("pending");
     setAirlockProgress(0);
+    startUndoRiserSound(AIRLOCK_DURATION_MS);
 
     airlockTickerRef.current = window.setInterval(() => {
       const elapsed = Date.now() - startAt;
@@ -70,15 +98,21 @@ export default function App() {
       clearAirlockTimers();
       setAirlockProgress(100);
       setVault((current) => [...current, task]);
-      setAirlockTask(null);
+      setAirlockState("complete");
       setStatusText("Task dissolved into The Vault.");
-      setView(VIEW.DASHBOARD);
+      airlockCompleteTimeoutRef.current = window.setTimeout(() => {
+        setAirlockState("fading");
+        airlockFadeTimeoutRef.current = window.setTimeout(() => {
+          setAirlockState("idle");
+          setAirlockProgress(0);
+        }, AIRLOCK_COMPLETE_FADE_MS);
+      }, AIRLOCK_COMPLETE_GLOW_MS);
     }, AIRLOCK_DURATION_MS);
   }
 
   function undoAirlock() {
     clearAirlockTimers();
-    setAirlockTask(null);
+    setAirlockState("idle");
     setAirlockProgress(0);
     setStatusText("Air-Lock reversed.");
   }
@@ -192,8 +226,14 @@ export default function App() {
     setStatusText("Vault cleared.");
   }
 
+  function goBack(nextView) {
+    playBackArrowSound();
+    setView(nextView);
+  }
+
   return (
     <div className="app-root">
+      <CustomCursor />
       {statusText && <div className="system-banner">{statusText}</div>}
       {view === VIEW.DASHBOARD && (
         <div className="app-dev-controls">
@@ -217,12 +257,20 @@ export default function App() {
           <Dashboard onDump={() => setView(VIEW.DUMP)} onCalibrate={() => setView(VIEW.CALIBRATION)} />
         )}
 
-        {view === VIEW.VAULT && <VaultView tasks={vault} onBack={() => setView(VIEW.DASHBOARD)} />}
+        {view === VIEW.VAULT && <VaultView tasks={vault} onBack={() => goBack(VIEW.DASHBOARD)} />}
 
         {view === VIEW.DUMP && (
           <DumpView
-            onBack={() => setView(VIEW.DASHBOARD)}
+            onBack={() => {
+              if (airlockState === "idle") {
+                goBack(VIEW.DASHBOARD);
+              }
+            }}
             onSend={beginAirlock}
+            onUndo={undoAirlock}
+            airlockState={airlockState}
+            airlockProgress={airlockProgress}
+            completeVisualDurationMs={AIRLOCK_COMPLETE_VISUAL_MS}
             calculateSimilarity={calculateSimilarity}
           />
         )}
@@ -232,7 +280,7 @@ export default function App() {
             constraints={constraints}
             vaultSize={vault.length}
             fallbackState={fallbackState}
-            onBack={() => setView(VIEW.DASHBOARD)}
+            onBack={() => goBack(VIEW.DASHBOARD)}
             onRun={runCalibration}
             onUpdateConstraints={(partial) =>
               setConstraints((current) => ({
@@ -246,7 +294,7 @@ export default function App() {
         {view === VIEW.CRUCIBLE && (
           <CrucibleChoice
             poolSize={pool.length}
-            onBack={() => setView(VIEW.CALIBRATION)}
+            onBack={() => goBack(VIEW.CALIBRATION)}
             onFate={() => setView(VIEW.FATE)}
             onFight={() => setView(VIEW.FIGHT)}
           />
@@ -255,7 +303,7 @@ export default function App() {
         {view === VIEW.FATE && (
           <FateWheel
             pool={pool}
-            onBack={() => setView(VIEW.CRUCIBLE)}
+            onBack={() => goBack(VIEW.CRUCIBLE)}
             onDone={(task) => {
               setFocusTask(task);
               setView(VIEW.FOCUS);
@@ -266,7 +314,7 @@ export default function App() {
         {view === VIEW.FIGHT && (
           <FightBracket
             pool={pool}
-            onBack={() => setView(VIEW.CRUCIBLE)}
+            onBack={() => goBack(VIEW.CRUCIBLE)}
             onDone={(task) => {
               setFocusTask(task);
               setView(VIEW.FOCUS);
@@ -278,10 +326,6 @@ export default function App() {
           <FocusView task={focusTask} onExecute={handleExecute} onDefer={handleDefer} />
         )}
       </main>
-
-      {airlockTask && (
-        <AirlockOverlay task={airlockTask} progress={airlockProgress} onUndo={undoAirlock} />
-      )}
 
       {whiteFlush && <div className="white-flush" />}
     </div>

@@ -1,92 +1,84 @@
 # Project Blackbox: Brand and Design Guidelines
 
-This guideline reflects the current shipped UI language and visual behavior.
+This guide reflects the current live app.
 
 ## 1. Product Tone
-Blackbox should feel direct, minimal, and operational.
-- Avoid motivational productivity language.
-- Prefer short, action-first labels.
-- Keep interfaces sparse: one main action per screen when possible.
+Blackbox should feel minimal, direct, and operational.
+- Keep language short and action-first.
+- Avoid motivational copy.
+- Keep focus on one next action at a time.
 
 ## 2. Visual Direction
 
-### 2.1 Color Tokens
-- Void background: `#09090B`
-- Elevated panels: `#18181B`
-- Primary action signal: `#FF4500`
+### 2.1 Tokens
+- Void: `#09090B`
+- Elevated: `#18181B`
+- Signal: `#FF4500`
 - Main text: `#FAFAFA`
 - Secondary text: `#71717A`
-- Warning/danger accent: `#F97316`
+- Danger: `#F97316`
 
 ### 2.2 Typography
 - Display/task emphasis: JetBrains Mono
-- Body/UI labels: Inter
+- UI/body: Inter
 
-### 2.3 Shape and Motion
-- Rounded cards/buttons with subtle borders.
-- Functional motion over decorative motion.
-- Capture commit animation is currently simplified to card fade-to-black in Air-Lock.
-- Completion feedback is a white flush, then reset to calibration.
+### 2.3 Motion Principles (Current)
+- Motion should communicate state transitions, not decoration.
+- Capture commit uses button-native progression:
+  - `Undo?` fill over 3 seconds
+  - `Complete` glow pulse
+  - quick fade back to idle
+- Completion in focus uses white-flush reset feedback.
 
-## 3. Current Label Set (Source of Truth)
+## 3. Current Label Set
 
 ### 3.1 Dashboard
 - Heading: `BLACKBOX`
-- Primary buttons: `+ Task`, `Draw Task`
-- Dev corner controls:
+- Main actions: `+ Task`, `Draw Task`
+- Dev controls (screen-level, top-right, subtle):
   - `DEV: View Vault`
   - `DEV: Export CSV`
   - `DEV: Clear Vault`
 
-### 3.2 Capture (`+ Task`)
+### 3.2 Capture
 - Title placeholder: `Task title`
 - Description toggle: `+ Description` / `- Description`
 - Description placeholder: `Task description`
 - Constraint labels: `Time`, `REQUIRED ENERGY`, `Context`
-- Submit button: `Create Task`
+- Primary button states: `Create Task` -> `Undo?` -> `Complete`
 
-### 3.3 Air-Lock
-- Heading: `Vault Commit Pending`
-- Action: `Undo`
-
-### 3.4 Calibration
+### 3.3 Calibration
 - Heading: `Define Your Constraints`
-- Constraint labels: `Time`, `CURRENT ENERGY`, `Context(s)`
+- Labels: `Time`, `CURRENT ENERGY`, `Context(s)`
 - Primary action: `Next`
-- Fallback copy:
+- Fallback:
   - `Analysis Failed`
   - `0 tasks matched. Adjust constraints and try again.`
 
-### 3.5 Crucible
-- Heading pattern: `<n> task(s) identified`
-- Subtext: `Choose a tie breaker.`
+### 3.4 Crucible/Fate/Fight
+- Crucible heading pattern: `<n> task(s) identified`
+- Crucible subtext: `Choose a tie breaker.`
 - Options: `Fate`, `Fight`
+- Fate action: `Spin`
+- Fate result: `Locked Task` + `Enter Focus View`
+- Fight helper in last round: `final choice`
 
-### 3.6 Fate
-- Main action: `Spin`
-- Result label: `Locked Task`
-- Continue action: `Enter Focus View`
-
-### 3.7 Fight
-- Heading: `Choose`
-- Last round helper: `final choice`
-- Behavior: user selects preferred task; loser shatters.
-
-### 3.8 Focus
-- Main actions: `Complete`, `Defer`
-- Warning copy at high deferral:
+### 3.5 Focus
+- Actions: `Complete`, `Defer`
+- Warning copy for high defer count:
   - `Operational neglect detected. Re-evaluate priority.`
 
-## 4. Interaction Principles
-- Back navigation should use arrow icon buttons, not text links.
-- Task lists should stay hidden in normal flow; users receive one selected task at a time.
-- Crucible should never reveal full candidate lists.
-- Dev-only visibility tools remain visually secondary and corner-positioned.
+## 4. Interaction Rules
+- Back navigation uses arrow icon buttons.
+- Full task lists remain hidden in normal decision flow.
+- Fight only exposes pairwise choices.
+- After capture commit, user stays on capture to continue adding tasks.
+- During undo timer, capture form remains editable.
 
-## 5. Copy Style Rules
-- Use concise sentence case.
-- Prefer system-like feedback:
-  - `Task dissolved into The Vault.`
-  - `Task Cleared. Awaiting Calibration.`
-  - `Task Deferred. Entropy incremented.`
-- Avoid celebratory language and streak/gamification tone.
+## 5. Copy Style
+Use system-like feedback:
+- `Task dissolved into The Vault.`
+- `Task Cleared. Awaiting Calibration.`
+- `Task Deferred. Entropy incremented.`
+
+Avoid celebratory tone and streak language.

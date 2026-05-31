@@ -1,6 +1,6 @@
 # User Flows: Blackbox
 
-This document describes the current end-to-end behavior implemented in the app.
+This document reflects current implemented behavior.
 
 ## 1. Global Lifecycle
 
@@ -9,10 +9,10 @@ graph TD
     Start((App Launch)) --> Dashboard[BLACKBOX Dashboard]
 
     Dashboard -->|+ Task| Dump[Task Capture]
-    Dump -->|Create Task| Airlock{5s Air-Lock}
-    Airlock -->|Undo| Dump
-    Airlock -->|Commit| Vault[(Vault)]
-    Vault --> Dashboard
+    Dump -->|Create Task| UndoWindow{Button Air-Lock 3s}
+    UndoWindow -->|Undo?| Dump
+    UndoWindow -->|Commit| Complete[Complete Glow + Fade]
+    Complete --> Dump
 
     Dashboard -->|Draw Task| Calibration[Define Your Constraints]
     Calibration -->|0 matches| Failed[Analysis Failed]
@@ -31,7 +31,7 @@ graph TD
     Focus -->|Defer| Deferred[Task updated]
 
     Purged --> Calibration
-    Deferred --> Vault
+    Deferred --> Vault[(Vault)]
     Deferred --> Calibration
 
     Dashboard -->|DEV: View Vault| VaultScreen[Temporary Vault View]
@@ -45,27 +45,30 @@ graph TD
 
 | Step | Action | UI Result |
 | :--- | :--- | :--- |
-| 1 | Enter title | Placeholder is `Task title`; field auto-resizes; max 100 chars. |
-| 2 | Optional details | Toggle `+ Description` to open description input. |
-| 3 | Set required constraints | Pick single `Time`, single `REQUIRED ENERGY`, and one or more `Context`. |
-| 4 | Create task | Click `Create Task` to open 5-second Air-Lock. |
-| 5 | Commit or cancel | `Undo` returns to capture; otherwise task is committed to vault. |
+| 1 | Enter title | Placeholder `Task title`; auto-resize; max 100 chars. |
+| 2 | Optional details | Toggle `+ Description` to open `Task description`. |
+| 3 | Set constraints | Choose `Time`, `REQUIRED ENERGY`, and one or more `Context`. |
+| 4 | Submit | Tap `Create Task`; button becomes `Undo?` with orange fill timer. |
+| 5 | Commit complete | On timer end, button shows glowing `Complete`, fades, then resets to `Create Task`. |
 
 Notes:
-- Character count appears only when title reaches the limit.
-- Duplicate-risk warning appears when title similarity is high.
+- Timer duration is 3 seconds.
+- During undo sequence, the form remains editable so the next task can be prepared.
+- User stays on capture screen after successful commit.
+- Character count appears only at limit.
+- Duplicate-risk warning appears for similar titles.
 
 ## 3. Calibration Flow (`Draw Task`)
 
 | Step | Action | UI Result |
 | :--- | :--- | :--- |
-| 1 | Open calibration | Screen title: `Define Your Constraints`. |
+| 1 | Open calibration | Heading: `Define Your Constraints`. |
 | 2 | Select constraints | Multi-select `Time`, `CURRENT ENERGY`, `Context(s)`. |
-| 3 | Run | `Next` runs matching logic. |
-| 4 | Fallback | If 0 matches: `Analysis Failed` + adjust and retry. |
-| 5 | Route | 1 match goes straight to Focus; 2+ matches go to Crucible. |
+| 3 | Run | `Next` executes local filtering. |
+| 4 | Fallback | If 0 matches: `Analysis Failed` + retry by adjusting constraints. |
+| 5 | Route | 1 match goes to Focus; 2+ matches go to Crucible. |
 
-## 4. Tie-Breaking Flow
+## 4. Tie-Breaking
 
 ### 4.1 Fate
 ```mermaid
@@ -100,12 +103,14 @@ sequenceDiagram
 
 | Action | Result |
 | :--- | :--- |
-| `Complete` | White flash, task removed from vault, return to calibration. |
+| `Complete` | White flash, task removed, return to calibration. |
 | `Defer` | Increment defer count, refresh timestamp, return to calibration. |
 
-If `deferCount >= 3`, a warning banner appears in Focus.
+If `deferCount >= 3`, a warning banner appears.
 
-## 6. Dev Utility Flow (Dashboard)
+## 6. Dev Utility Flow
+
+These controls appear on dashboard view only, fixed in the top-right outside the dashboard card.
 
 | Control | Behavior |
 | :--- | :--- |

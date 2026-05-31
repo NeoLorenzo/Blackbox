@@ -1,50 +1,55 @@
 # App Overview
 
-Blackbox is a local-first task selector designed to reduce backlog overwhelm. Tasks are captured quickly, hidden in a vault, filtered by current constraints, and surfaced as a single next action.
+Blackbox is a local-first task selector designed to reduce backlog overwhelm. Tasks are captured quickly, filtered by current constraints, and surfaced as a single next action.
 
 ## Current Scope
 - Implemented: phases 1 to 4 (capture through focus)
-- Not implemented: phases 5 and 6 (cloud sync and polish backlog)
+- Deferred: phases 5 and 6 (cloud sync and long-tail polish)
 
 ## Main Screen
-The dashboard heading is `BLACKBOX`.
+Dashboard heading: `BLACKBOX`
 
 Primary actions:
-- `+ Task` opens task capture.
-- `Draw Task` opens constraint calibration.
+- `+ Task` opens capture.
+- `Draw Task` opens calibration.
 
-Dev controls in the top-right corner:
+Dev controls are intentionally discreet and screen-level (outside the dashboard card), fixed in the top-right while on the dashboard:
 - `DEV: View Vault`
 - `DEV: Export CSV`
 - `DEV: Clear Vault`
 
 ## Phase 1: Task Capture (`+ Task`)
-The capture screen is intentionally compact and fast:
-- Title field placeholder: `Task title`
+Capture is designed for speed and low friction:
+- Title placeholder: `Task title`
 - Optional details toggle: `+ Description` / `- Description`
 - Description placeholder: `Task description`
-- Constraint fields:
+- Constraints:
   - `Time`: `5m`, `30m`, `60m+`, `Unkown`
   - `REQUIRED ENERGY`: `Low`, `Medium`, `High`
   - `Context`: `Phone`, `PC`, `Physical`
-- Submit button: `Create Task`
+- Primary button (idle): `Create Task`
 
 Behavior:
-- Title is capped at 100 characters.
-- Character count appears when the title hits the limit.
-- Duplicate-title risk warnings appear when similarity is high.
-- Title input auto-resizes and does not scroll.
+- Title max length: 100
+- Character count appears only when at limit
+- Similar-title warning appears for high overlap
+- Title input auto-resizes (non-scrollable)
 
-## Air-Lock Commit
-After `Create Task`, an air-lock overlay appears for 5 seconds:
-- Header: `Vault Commit Pending`
-- Progress bar with countdown and `Undo`
-- Card transition: fades to black before commit
+## Air-Lock (Button-Native)
+Air-lock no longer uses a modal/overlay.
 
-If not undone, the task is committed to the vault and the app returns to the dashboard.
+Instead, the capture button itself becomes the undo mechanism:
+- On submit, button changes to `Undo?`
+- Button fill animates orange over a 3-second timer
+- On successful commit, button changes to `Complete` with glow
+- `Complete` fades out and resets back to `Create Task`
+
+Important UX detail:
+- During the undo timer, users can already type/configure the next task in the form.
+- After success, users remain on the capture screen (no automatic return to dashboard).
 
 ## Phase 2: Calibration (`Draw Task`)
-Calibration asks users to define current constraints before drawing a task.
+Calibration defines current constraints before drawing.
 
 Labels:
 - `Time`
@@ -52,45 +57,43 @@ Labels:
 - `Context(s)`
 
 Behavior:
-- All three groups are multi-select.
-- Matching logic is OR within each group and AND across groups.
-- `Next` is disabled when any group has no selection or the vault is empty.
-- Zero-match state shows:
+- Multi-select in all three groups
+- Matching logic: OR within each group, AND across groups
+- `Next` disabled if any group is empty or vault is empty
+- Zero-match fallback:
   - `Analysis Failed`
   - `0 tasks matched. Adjust constraints and try again.`
 
 ## Phase 3: Crucible (Tie Break)
-When multiple tasks match calibration:
-- Heading format: `<n> task(s) identified`
+When multiple tasks match:
+- Heading: `<n> task(s) identified`
 - Subtext: `Choose a tie breaker.`
-- Options: `Fate` and `Fight`
+- Options: `Fate`, `Fight`
 
 ### Fate
-- Spinner UI with `Spin` button
-- Weighted selection based on defer count and task age
-- Result card shows `Locked Task` and `Enter Focus View`
+- Spinner button: `Spin`
+- Weighted selection (age + defer count)
+- Result card: `Locked Task` + `Enter Focus View`
 
 ### Fight
-- One-on-one card comparison with heading `Choose`
+- Head-to-head chooser with heading `Choose`
 - User picks preferred task each round
-- Losing card uses a shatter animation
-- On the last round, the UI shows `final choice`
-- Final selection routes directly to Focus (no champion interstitial screen)
+- Losing card shatters
+- Final round helper text: `final choice`
+- Final selection routes directly to Focus (no champion interstitial)
 
 ## Phase 4: Focus
-Focus view shows one task and two actions:
+Focus shows one task with two actions:
 - `Complete`
 - `Defer`
 
 Behavior:
-- `Complete` triggers white-flush feedback and removes the task from the vault.
-- `Defer` increments `deferCount`, refreshes `createdAt`, and returns to calibration.
-- If `deferCount >= 3`, a neglect warning banner appears.
+- `Complete`: white flush + remove task + return to calibration
+- `Defer`: increment `deferCount`, refresh `createdAt`, return to calibration
+- Neglect warning appears when `deferCount >= 3`
 
 ## Temporary Dev Vault View
-`DEV: View Vault` opens a temporary validation screen:
-- Heading: `The Vault`
-- Tasks sorted by newest first
-- Shows title, constraints, description (if present), defer count, and capture timestamp
-
-The vault screen is for development visibility, not the intended end-user hidden-vault behavior.
+`DEV: View Vault` opens a temporary visibility screen for validation:
+- Shows task metadata, defer count, and capture time
+- Sorted newest-first
+- Intended for development/testing, not final hidden-vault UX
